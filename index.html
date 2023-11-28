@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Binary Search Tree Visualization</title>
+    <style>
+        #canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h2>Binary Search Tree Visualization</h2>
+    <canvas id="canvas" width="400" height="300"></canvas>
+    <br>
+    <label for="inorderInput">Inorder Traversal:</label>
+    <input type="text" id="inorderInput" />
+    <button onclick="visualizeTree()">Visualize</button>
+
+    <script>
+        // Binary Search Tree visualization logic
+
+        // TreeNode class
+        function TreeNode(value) {
+            this.value = value;
+            this.left = null;
+            this.right = null;
+        }
+
+        // Function to build the binary search tree from the given inorder traversal
+        function buildBST(inorder) {
+            // Convert the inorder string to an array
+            var inorderArr = inorder.split(' ').map(Number);
+
+            // Recursive function to build the tree
+            function buildTree(start, end) {
+                if (start > end) {
+                    return null;
+                }
+
+                // Find the middle element as the root
+                var mid = Math.floor((start + end) / 2);
+                var rootValue = inorderArr[mid];
+                var rootNode = new TreeNode(rootValue);
+
+                // Build the left and right subtrees recursively
+                rootNode.left = buildTree(start, mid - 1);
+                rootNode.right = buildTree(mid + 1, end);
+
+                return rootNode;
+            }
+
+            // Build the binary search tree starting from the root
+            var root = buildTree(0, inorderArr.length - 1);
+
+            return root;
+        }
+
+        // Function to draw the binary search tree using the canvas element
+        function drawBST(root) {
+            var canvas = document.getElementById("canvas");
+            var context = canvas.getContext("2d");
+            var startX = canvas.width / 2;
+            var startY = 50;
+
+            var nodeRadius = 20;
+            var levelHeight = 60;
+            var levelWidth = 80;
+
+            // Function to draw a binary tree node
+            function drawNode(node, x, y) {
+                context.beginPath();
+                context.arc(x, y, nodeRadius, 0, 2 * Math.PI);
+                context.stroke();
+                context.closePath();
+                context.fillText(node.value.toString(), x - nodeRadius / 2, y + nodeRadius / 2);
+            }
+
+            // Function to draw an edge between two nodes
+            function drawEdge(x1, y1, x2, y2) {
+                context.beginPath();
+                context.moveTo(x1, y1);
+                context.lineTo(x2, y2);
+                context.stroke();
+                context.closePath();
+            }
+
+            // Recursive function to draw the binary search tree
+            function drawTree(node, x, y, level) {
+                if (node === null) {
+                    return;
+                }
+
+                // Draw the current node
+                drawNode(node, x, y);
+
+                // Calculate the x-coordinates for left and right children
+                var leftX = x - levelWidth;
+                var rightX = x + levelWidth;
+
+                // Calculate the y-coordinate for children
+                var childY = y + levelHeight;
+
+                // Draw edges and recursively draw left and right subtrees
+                if (node.left) {
+                    drawEdge(x, y + nodeRadius, leftX, childY);
+                    drawTree(node.left, leftX, childY, level + 1);
+                }
+
+                if (node.right) {
+                    drawEdge(x, y + nodeRadius, rightX, childY);
+                    drawTree(node.right, rightX, childY, level + 1);
+                }
+            }
+
+            // Clear the canvas
+            context.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Calculate the starting x-coordinate for the root node
+            var rootX = startX - nodeRadius;
+
+            // Draw the binary search tree starting from the root
+            drawTree(root, rootX, startY, 0);
+        }
+
+        function visualizeTree() {
+            var inorder = document.getElementById("inorderInput").value;
+
+            // Build the binary search tree
+            var root = buildBST(inorder);
+
+            // Draw the binary search tree on the canvas
+            drawBST(root);
+        }
+    </script>
+</body>
+</html>
